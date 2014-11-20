@@ -53,27 +53,61 @@ template < class T >
 BinaryTree<T>* HeapSkew<T>::merge(BinaryTree<T>* left, BinaryTree<T>* right)
 {
    //DO THIS
-
-
-
-
-
-
-
-
-
-
-
+   if (left->isEmpty())
+   {
+		delete left;
+		return right;
+   }
+   else if (right->isEmpty())
+   {
+		delete right;
+		return left;
+   }
+   
+   int comp = (*compare_items) (left->getRootItem(), right->getRootItem());
+   
+   if (comp < 0)
+   {
+		return merge(right, left);
+   }
+   else if (comp > 0)
+   {
+		BinaryTree<T>* LL = left->detachLeftSubtree();
+		BinaryTree<T>* LR = left->detachRightSubtree();
+		
+		left->attachRightSubtree(LL);
+		
+		if (LR->isEmpty())
+		{
+			left->attachLeftSubtree(right);
+			
+			delete LL;
+			delete LR;
+			delete right;
+			
+			return left;
+		}
+		else
+		{
+			BinaryTree<T>* temp = merge(LR, right);
+			left->attachLeftSubtree(temp);
+			
+			delete temp;
+			delete LL;
+			
+			return left;
+		}
+   }
 }
 
 template < class T >
 void HeapSkew<T>::heapInsert(T* item)
 {
    //DO THIS (calls merge, should be short)
+   BinaryTree<T>* left = bt;
+   BinaryTree<T>* right = new BinaryTree<T>(item);
 
-
-
-
+   bt = merge(left, right);
 
    sze++;
 }
@@ -82,10 +116,13 @@ template < class T >
 T* HeapSkew<T>::heapRemove()
 {
    //DO THIS (calls merge, should be short)
-
-
-
-
+   BinaryTree<T>* left = bt->detachLeftSubtree();
+   BinaryTree<T>* right = bt->detachRightSubtree();
+   
+   T* result = bt->getRootItem();
+   delete bt;
+   
+   bt = merge(left, right);
 
    sze--;
    return result;
